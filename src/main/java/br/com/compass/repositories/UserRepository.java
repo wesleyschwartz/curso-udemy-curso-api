@@ -1,4 +1,4 @@
-package repositories;
+package br.com.compass.repositories;
 
 import br.com.compass.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
