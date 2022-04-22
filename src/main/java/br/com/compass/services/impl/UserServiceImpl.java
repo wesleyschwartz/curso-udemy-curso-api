@@ -41,12 +41,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(UserDTO userDTO) {
+        findById(userDTO.getId());
         findByEmail(userDTO);
         return userRepository.save(modelMapper.map(userDTO, User.class));
     }
 
     @Override
     public void delete(Integer id) {
+        findById(id);
         userRepository.deleteById(id);
     }
 
