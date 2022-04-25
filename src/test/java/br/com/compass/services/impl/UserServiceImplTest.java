@@ -30,7 +30,7 @@ class UserServiceImplTest {
     public static final String OBJETO_NÃO_ENCONTRADO = "Objeto não encontrado";
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserServiceImpl userServiceImpl;
 
     @Mock
     private UserRepository userRepository;
@@ -54,7 +54,7 @@ class UserServiceImplTest {
     void whenFindByIdThenReturnAnUserInstance() {
         when(userRepository.findById(anyInt())).thenReturn(optionalUser);
 
-        User response = userService.findById(ID);
+        User response = userServiceImpl.findById(ID);
 
         assertNotNull(response);
         assertEquals(User.class, response.getClass());
@@ -67,7 +67,7 @@ class UserServiceImplTest {
     void whenFindByIdThenReturnAnObjectNotFoundException() {
         when(userRepository.findById(anyInt())).thenThrow(new ObjectNotFoundException(OBJETO_NÃO_ENCONTRADO));
         try {
-            userService.findById(ID);
+            userServiceImpl.findById(ID);
         } catch (Exception ex) {
             assertEquals(ObjectNotFoundException.class, ex.getClass());
             assertEquals(OBJETO_NÃO_ENCONTRADO, ex.getMessage());
@@ -78,7 +78,7 @@ class UserServiceImplTest {
     void whenFindAllThenReturnAnListOfUsers() {
         when(userRepository.findAll()).thenReturn(List.of(user));
 
-        List<User> response = userService.findAll();
+        List<User> response = userServiceImpl.findAll();
 
         assertNotNull(response);
         assertEquals(1, response.size());
@@ -95,7 +95,7 @@ class UserServiceImplTest {
     void whenCreateThenReturnSuccess() {
         when(userRepository.save(any())).thenReturn(user);
 
-        User response = userService.create(userDTO);
+        User response = userServiceImpl.create(userDTO);
 
         assertNotNull(response);
         assertEquals(User.class, response.getClass());
@@ -110,7 +110,7 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(optionalUser);
         try {
             optionalUser.get().setId(2);
-            userService.create(userDTO);
+            userServiceImpl.create(userDTO);
         } catch (Exception ex) {
             assertEquals(DataIntegrityViolationException.class, ex.getClass());
             assertEquals("E-mail já cadastrado no sistema", ex.getMessage());
@@ -121,7 +121,7 @@ class UserServiceImplTest {
     void whenUpdateThenReturnAnSuccess() {
         when(userRepository.save(any())).thenReturn(user);
         when(userRepository.findById(anyInt())).thenReturn(optionalUser);
-        User response = userService.update(userDTO);
+        User response = userServiceImpl.update(userDTO);
         assertNotNull(response);
         assertEquals(User.class, response.getClass());
         assertEquals(NAME, response.getName());
@@ -136,7 +136,7 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(optionalUser);
         try {
             optionalUser.get().setId(2);
-            userService.update(userDTO);
+            userServiceImpl.update(userDTO);
         } catch (Exception ex) {
             assertEquals(DataIntegrityViolationException.class, ex.getClass());
             assertEquals("E-mail já cadastrado no sistema", ex.getMessage());
@@ -148,7 +148,7 @@ class UserServiceImplTest {
         when(userRepository.findById(anyInt()))
                 .thenThrow(new ObjectNotFoundException(OBJETO_NÃO_ENCONTRADO));
         try {
-            userService.update(userDTO);
+            userServiceImpl.update(userDTO);
         } catch (Exception ex) {
             assertEquals(ObjectNotFoundException.class, ex.getClass());
             assertEquals(OBJETO_NÃO_ENCONTRADO, ex.getMessage());
@@ -160,7 +160,7 @@ class UserServiceImplTest {
     void deleteWithSucess() {
         when(userRepository.findById(anyInt())).thenReturn(optionalUser);
         doNothing().when(userRepository).deleteById(anyInt());
-        userService.delete(ID);
+        userServiceImpl.delete(ID);
         verify(userRepository, times(1)).deleteById(anyInt());
     }
 
@@ -169,7 +169,7 @@ class UserServiceImplTest {
         when(userRepository.findById(anyInt()))
                 .thenThrow(new ObjectNotFoundException(OBJETO_NÃO_ENCONTRADO));
         try {
-            userService.delete(ID);
+            userServiceImpl.delete(ID);
         } catch (Exception ex) {
             assertEquals(ObjectNotFoundException.class, ex.getClass());
             assertEquals(OBJETO_NÃO_ENCONTRADO, ex.getMessage());
