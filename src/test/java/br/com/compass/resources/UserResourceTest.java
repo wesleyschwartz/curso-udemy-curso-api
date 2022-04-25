@@ -10,13 +10,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserResourceTest {
@@ -52,6 +55,7 @@ class UserResourceTest {
         assertNotNull(response.getBody());
         assertEquals(ResponseEntity.class, response.getClass());
         assertEquals(UserDTO.class, response.getBody().getClass());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
 
         assertEquals(ID, response.getBody().getId());
         assertEquals(NAME, response.getBody().getName());
@@ -60,19 +64,63 @@ class UserResourceTest {
     }
 
     @Test
-    void findAll() {
+    void whenFindAllThenReturnAListOfUserDTO() {
+        when(userServiceImpl.findAll()).thenReturn(List.of(user));
+        when(modelMapper.map(any(), any())).thenReturn(userDTO);
+
+        ResponseEntity<List<UserDTO>> response = userResource.findAll();
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(ArrayList.class, response.getBody().getClass());
+
+        assertEquals(ID, response.getBody().get(0).getId());
+        assertEquals(NAME, response.getBody().get(0).getName());
+        assertEquals(EMAIL, response.getBody().get(0).getEmail());
+        assertEquals(PASSWORD, response.getBody().get(0).getPassword());
     }
 
     @Test
-    void create() {
+    void whenCreateThenReturnCreated() {
+        when(userServiceImpl.create(any())).thenReturn(user);
+        ResponseEntity<UserDTO> response = userResource.create(userDTO);
+
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getHeaders().get("Location"));
     }
 
     @Test
-    void update() {
+    void whenUpdateThenReturnSuccess() {
+        when(userServiceImpl.update(userDTO)).thenReturn(user);
+        when(modelMapper.map(any(), any())).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = userResource.update(ID, userDTO);
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(UserDTO.class, response.getBody().getClass());
+
+        assertEquals(ID, response.getBody().getId());
+        assertEquals(NAME, response.getBody().getName());
+        assertEquals(EMAIL, response.getBody().getEmail());
     }
 
+
     @Test
-    void delete() {
+    void whenDeleteThenReturnSucces() {
+        doNothing().when(userServiceImpl).delete(anyInt());
+
+        ResponseEntity<UserDTO> response = userResource.delete(ID);
+        assertNotNull(response);
+        assertEquals(ResponseEntity.class, response.getClass());
+        verify(userServiceImpl, times(1)).delete(anyInt());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     private void startUser() {
